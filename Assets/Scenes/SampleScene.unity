@@ -438,9 +438,6 @@ MonoBehaviour:
   winScreen: {fileID: 1857935565}
   loseScreen: {fileID: 1938143639}
   winScreenText: {fileID: 1857935565}
-  moveClips: []
-  matchClips: []
-  source: {fileID: 0}
 --- !u!4 &1848683157
 Transform:
   m_ObjectHideFlags: 0
