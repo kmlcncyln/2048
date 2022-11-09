@@ -11,8 +11,7 @@ public class Block : MonoBehaviour
     public bool Merging;
     public Vector2 Pos => transform.position;
     [SerializeField] private SpriteRenderer renderer;
-    [SerializeField] private TextMeshPro text;    
-    
+    [SerializeField] private TextMeshPro text;
     public void Init(BlockType type)
     {
         Value = type.Value;
@@ -28,11 +27,14 @@ public class Block : MonoBehaviour
     }
 
     public void MergeBlock(Block blockToMergeWith)
-    {   // Set block which merging
+    {
+        // Set the block we are merging with
         MergingBlock = blockToMergeWith;
-        // set node as unoccupied
+
+        // Set current node as unoccupied to allow blocks to use it
         Node.OccupiedBlock = null;
-        // Set base block 
+
+        // Set the base block as merging, so it does not get used twice.
         blockToMergeWith.Merging = true;
     }
 

@@ -18,8 +18,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private SpriteRenderer boardPrefab;
     [SerializeField] private List<BlockType> types;
     [SerializeField] private float travelTime = 0.2f;
-    
+    [SerializeField] private int winCondition = 2048;
+    //[SerializeField] private GameObject mergeEffectPrefab;
 
+    [SerializeField] private GameObject winScreen, loseScreen, winScreenText;
+    [SerializeField] private AudioClip[] moveClips;
+    [SerializeField] private AudioClip[] matchClips;
+    [SerializeField] private AudioSource source;
 
     private List<Node> nodes;
     private List<Block> blocks;
@@ -48,14 +53,21 @@ public class GameManager : MonoBehaviour
             case GameState.Moving:
                 break;
             case GameState.Win:
+                winScreen.SetActive(true);
+                Invoke(nameof(DelayedWinScreenText), 1.5f);
                 break;
             case GameState.Lose:
+                loseScreen.SetActive(true);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
         }
     }
 
+    void DelayedWinScreenText()
+    {
+        winScreenText.SetActive(true);
+    }
     private void Update()
     {
         if (state != GameState.WaitingInput) return;
@@ -96,20 +108,25 @@ public class GameManager : MonoBehaviour
         
         foreach (var node in freeNodes.Take(amount))
         {
-            var block = Instantiate(blockPrefab, node.Pos, Quaternion.identity);
-            block.Init(GetBlockTypeByValue(Random.value > 0.8f ? 4 : 2));
-            block.SetBlock(node);
-            blocks.Add(block);
+            SpawnBlock(node, Random.value > 0.8f ? 4 : 2);
         }
 
         if (freeNodes.Count() == 1)
         {
-            //Lost Game
+            ChangeState(GameState.Lose);
             return;
         }
-        ChangeState(GameState.WaitingInput);
+        ChangeState(blocks.Any(b => b.Value == winCondition) ? GameState.Win : GameState.WaitingInput);
     }
-    
+
+    void SpawnBlock(Node node, int value)
+    {
+        var block = Instantiate(blockPrefab, node.Pos, Quaternion.identity);
+        block.Init(GetBlockTypeByValue(value));
+        block.SetBlock(node);
+        blocks.Add(block);
+    }
+
     void Shift(Vector2 dir)
     {
         ChangeState(GameState.Moving);
@@ -128,10 +145,9 @@ public class GameManager : MonoBehaviour
                 if(possibleNode != null)
                 {
                     //If its possible merge set
-                    if(possibleNode.OccupiedBlock != null && possibleNode.OccupiedBlock.CanMerge(block.Value))
+                    if (possibleNode.OccupiedBlock != null && possibleNode.OccupiedBlock.CanMerge(block.Value))
                     {
                         block.MergeBlock(possibleNode.OccupiedBlock);
-
                     }
                     //otherwise move spot?
                     else if (possibleNode.OccupiedBlock == null) next = possibleNode;
@@ -139,30 +155,48 @@ public class GameManager : MonoBehaviour
                 }
             } while (next != block.Node);
 
-            block.transform.DOMove(block.Node.Pos, travelTime);
+            
         }
 
 
         var sequence = DOTween.Sequence();
-        foreach(var block in orderedBlocks)
-        {
-            var movePoint = block.Merging ? block.MergingBlock.Pos : block.Node.Pos;
 
-            sequence.Insert(0, block.transform.DOMove(movePoint, travelTime)); 
+        foreach (var block in orderedBlocks)
+        {
+            var movePoint = block.MergingBlock != null ? block.MergingBlock.Node.Pos : block.Node.Pos;
+
+            sequence.Insert(0, block.transform.DOMove(movePoint, travelTime).SetEase(Ease.InQuad));
         }
 
-        sequence.onComplete(() =>
-        {
-            foreach (var block in orderedBlocks.Where(b=>b.MergingBlock != null))
+        sequence.OnComplete(() => {
+            var mergeBlocks = orderedBlocks.Where(b => b.MergingBlock != null).ToList();
+            foreach (var block in mergeBlocks)
             {
-                MergeBlocks(block, block.MergingBlock);
+                MergeBlocks(block.MergingBlock, block);
             }
+            if (mergeBlocks.Any()) source.PlayOneShot(matchClips[Random.Range(0, matchClips.Length)], 0.2f);
+            ChangeState(GameState.SpawningBlocks);
         });
     }
 
     void MergeBlocks(Block baseBlock, Block mergingBlock)
     {
+        var newValue = baseBlock.Value * 2;
 
+        //Instantiate(mergeEffectPrefab, baseBlock.Pos, Quaternion.identity);
+        //Instantiate(floatingTextPrefab, baseBlock.Pos, Quaternion.identity).Init(newValue);
+
+        SpawnBlock(baseBlock.Node, newValue);
+
+        RemoveBlock(baseBlock);
+        RemoveBlock(mergingBlock);
+
+    }
+
+    void RemoveBlock(Block block)
+    {
+        blocks.Remove(block);
+        Destroy(block.gameObject);
     }
     Node GetNodeAtPosition(Vector2 pos)
     {
