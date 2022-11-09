@@ -22,9 +22,9 @@ public class GameManager : MonoBehaviour
     //[SerializeField] private GameObject mergeEffectPrefab;
 
     [SerializeField] private GameObject winScreen, loseScreen, winScreenText;
-    [SerializeField] private AudioClip[] moveClips;
-    [SerializeField] private AudioClip[] matchClips;
-    [SerializeField] private AudioSource source;
+    //[SerializeField] private AudioClip[] moveClips;
+    //[SerializeField] private AudioClip[] matchClips;
+    //[SerializeField] private AudioSource source;
 
     private List<Node> nodes;
     private List<Block> blocks;
@@ -34,7 +34,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         ChangeState(GameState.GenerateLevel);
-        //GenerateGrid();
     }
     public void ChangeState(GameState newState)
     {
@@ -54,7 +53,6 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.Win:
                 winScreen.SetActive(true);
-                Invoke(nameof(DelayedWinScreenText), 1.5f);
                 break;
             case GameState.Lose:
                 loseScreen.SetActive(true);
@@ -64,10 +62,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void DelayedWinScreenText()
-    {
-        winScreenText.SetActive(true);
-    }
+    
     private void Update()
     {
         if (state != GameState.WaitingInput) return;
@@ -165,7 +160,7 @@ public class GameManager : MonoBehaviour
         {
             var movePoint = block.MergingBlock != null ? block.MergingBlock.Node.Pos : block.Node.Pos;
 
-            sequence.Insert(0, block.transform.DOMove(movePoint, travelTime).SetEase(Ease.InQuad));
+            sequence.Insert(0, block.transform.DOMove(movePoint, travelTime));
         }
 
         sequence.OnComplete(() => {
@@ -174,7 +169,7 @@ public class GameManager : MonoBehaviour
             {
                 MergeBlocks(block.MergingBlock, block);
             }
-            if (mergeBlocks.Any()) source.PlayOneShot(matchClips[Random.Range(0, matchClips.Length)], 0.2f);
+            //if (mergeBlocks.Any()) source.PlayOneShot(matchClips[Random.Range(0, matchClips.Length)], 0.2f);
             ChangeState(GameState.SpawningBlocks);
         });
     }
