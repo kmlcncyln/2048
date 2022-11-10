@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 using Random = UnityEngine.Random;
 
@@ -19,15 +20,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<BlockType> types;
     [SerializeField] private float travelTime = 0.2f;
     [SerializeField] private int winCondition = 2048;
-    //[SerializeField] private GameObject mergeEffectPrefab;
+    /*public int myScore;*/
+    /*[SerializeField] Text scoreDisplay;*/
+
 
     [SerializeField] private GameObject winScreen, loseScreen, winScreenText;
-    //[SerializeField] private AudioClip[] moveClips;
-    //[SerializeField] private AudioClip[] matchClips;
-    //[SerializeField] private AudioSource source;
 
     private List<Node> nodes;
     private List<Block> blocks;
+
+
     private GameState state;
     private int round;
     private BlockType GetBlockTypeByValue(int value) => types.First(t => t.Value == value);
@@ -169,7 +171,7 @@ public class GameManager : MonoBehaviour
             {
                 MergeBlocks(block.MergingBlock, block);
             }
-            //if (mergeBlocks.Any()) source.PlayOneShot(matchClips[Random.Range(0, matchClips.Length)], 0.2f);
+            
             ChangeState(GameState.SpawningBlocks);
         });
     }
@@ -178,8 +180,7 @@ public class GameManager : MonoBehaviour
     {
         var newValue = baseBlock.Value * 2;
 
-        //Instantiate(mergeEffectPrefab, baseBlock.Pos, Quaternion.identity);
-        //Instantiate(floatingTextPrefab, baseBlock.Pos, Quaternion.identity).Init(newValue);
+        /*GameManager.instance.ScoreUpdate(value);*/
 
         SpawnBlock(baseBlock.Node, newValue);
 
@@ -197,6 +198,13 @@ public class GameManager : MonoBehaviour
     {
         return nodes.FirstOrDefault(n => n.Pos == pos);
     }
+
+    /*public void ScoreUpdate(int scoreIn)
+    {
+        myScore = scoreIn;
+        
+        scoreDisplay.text = myScore.ToString();
+    }*/
 }
 
 [Serializable]
@@ -214,3 +222,4 @@ public enum GameState
     Win,
     Lose
 } 
+
