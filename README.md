@@ -8,3 +8,6 @@ DOTween plugin has been used in this project
 
 # How to play
 You can use arrow keys to play this game
+
+#ToDo
+Score and Leaderboard system
