@@ -2,7 +2,7 @@
 
 This is a clone of a popular mobile game called 2048 made in Unity with C#
 
-Unity version 2021.3.0f1 needed for this project,
+Unity version 2021.3.0f1 needed for this project
 
 DOTween plugin has been used in this project
 
