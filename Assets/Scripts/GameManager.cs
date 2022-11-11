@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
                 GenerateGrid();
                 break;
             case GameState.SpawningBlocks:
-                SpawnBlocks(round++ == 0 ? 2 : 1); // Creates ' in first round then 1 by 1
+                SpawnBlocks(round++ == 0 ? 2 : 1); // Creates 2 in first round then 1 by 1
                 break;
             case GameState.WaitingInput:
                 break;
