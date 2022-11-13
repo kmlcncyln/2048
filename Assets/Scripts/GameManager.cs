@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,9 +21,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<BlockType> types;
     [SerializeField] private float travelTime = 0.2f;
     [SerializeField] private int winCondition = 2048;
-    /*public int myScore;*/
-    /*[SerializeField] Text scoreDisplay;*/
+    public int myHighScore;
+    public int myScore
+    {
+        get
+        {
+            int sum = 0;
+            sum = blocks.Sum<Block>((x) => x.Value);
 
+            return sum;
+        }
+    }
+    [SerializeField] TextMeshProUGUI scoreDisplay;
+    [SerializeField] TextMeshProUGUI HighScoreDisplay;
 
     [SerializeField] private GameObject winScreen, loseScreen, winScreenText;
 
@@ -36,6 +47,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         ChangeState(GameState.GenerateLevel);
+        if (PlayerPrefs.HasKey("HighScore"))
+        {
+            myHighScore = PlayerPrefs.GetInt("HighScore");
+
+        }
+        else
+        {
+            myHighScore = 0;
+        }
+        ScoreUpdate();
     }
     public void ChangeState(GameState newState)
     {
@@ -171,7 +192,7 @@ public class GameManager : MonoBehaviour
             {
                 MergeBlocks(block.MergingBlock, block);
             }
-            
+            ScoreUpdate();
             ChangeState(GameState.SpawningBlocks);
         });
     }
@@ -180,13 +201,12 @@ public class GameManager : MonoBehaviour
     {
         var newValue = baseBlock.Value * 2;
 
-        /*GameManager.instance.ScoreUpdate(value);*/
 
         SpawnBlock(baseBlock.Node, newValue);
 
         RemoveBlock(baseBlock);
         RemoveBlock(mergingBlock);
-
+        
     }
 
     void RemoveBlock(Block block)
@@ -199,12 +219,20 @@ public class GameManager : MonoBehaviour
         return nodes.FirstOrDefault(n => n.Pos == pos);
     }
 
-    /*public void ScoreUpdate(int scoreIn)
-    {
-        myScore = scoreIn;
-        
-        scoreDisplay.text = myScore.ToString();
-    }*/
+    public void ScoreUpdate()
+    {       
+        scoreDisplay.text = "Score: " + myScore.ToString();
+        if(myScore > myHighScore)
+        {
+            PlayerPrefs.SetInt("HighScore", myScore);
+            HighScoreDisplay.text = "HighScore: " + myScore.ToString();
+        }
+        else
+        {
+            HighScoreDisplay.text = "HighScore: " + myHighScore.ToString();
+        }
+    }
+
 }
 
 [Serializable]

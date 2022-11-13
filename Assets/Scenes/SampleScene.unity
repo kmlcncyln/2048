@@ -854,6 +854,9 @@ MonoBehaviour:
     Color: {r: 0.827451, g: 0.23529412, b: 0.9254902, a: 1}
   travelTime: 0.2
   winCondition: 2048
+  myHighScore: 0
+  scoreDisplay: {fileID: 2047423443}
+  HighScoreDisplay: {fileID: 1405091714}
   winScreen: {fileID: 1857935565}
   loseScreen: {fileID: 1938143639}
   winScreenText: {fileID: 1857935565}
