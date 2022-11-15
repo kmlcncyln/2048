@@ -13,4 +13,4 @@ The aim of the game is to complete the 2048 block and win the game. If all the s
 You can use arrow keys to play this game
 
 # ToDo
-Score and Leaderboard system
+Leaderboard system
